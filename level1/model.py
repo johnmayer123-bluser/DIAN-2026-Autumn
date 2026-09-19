@@ -4,7 +4,7 @@ import torch.nn as nn
 class MLP(nn.Module):
     def __init__(self,input_dim = 784, hidden_dims=(256,128),num_classes=10,dropout=0.1):
         super().__init__()
-        layers = []
+        layers = [nn.Flatten()]
         prev_dim = input_dim
         for hidden in hidden_dims:
             layers += [nn.Linear(prev_dim,hidden),nn.ReLU(),nn.Dropout(dropout)]
@@ -14,7 +14,6 @@ class MLP(nn.Module):
         self.net = nn.Sequential(*layers)
 
     def forward(self,X):
-        X = nn.Flatten()
         return self.net(X)
 
 def count_parameters(model):

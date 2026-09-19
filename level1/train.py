@@ -79,7 +79,7 @@ def train(model, loaders, criterion, optimizer, device, epochs, run_dir="run"):
 
     for epoch in range(1,epochs+1):
         train_loss = train_one_epoch(model,loaders["train"],criterion,optimizer,device)
-        val_loss, val_acc = evaluate(model,loaders,criterion,device)
+        val_loss, val_acc = evaluate(model,loaders["val"],criterion,device)
         history["train_loss"].append(train_loss)
         history["val_loss"].append(val_loss)
         history["val_acc"].append(val_acc)
