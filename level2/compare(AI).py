@@ -16,6 +16,10 @@ import os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+# 中文字体，避免错误样本标题显示为方块
+plt.rcParams["font.sans-serif"] = ["Microsoft YaHei", "SimHei"]
+plt.rcParams["axes.unicode_minus"] = False
 import torch
 import torch.nn as nn
 
@@ -98,7 +102,7 @@ def collect_errors(model, loader, device, max_num=8):
 def plot_convergence(histories, save_path):
     """收敛速度对比：val_acc + val_loss 双图。"""
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-    colors = {"MLP": "tab:blue", "LeNet": "tab:red"}
+    colors = {"mlp": "tab:blue", "lenet": "tab:red"}
     for tag, history in histories.items():
         epochs = range(1, len(history["val_acc"]) + 1)
         axes[0].plot(epochs, history["val_acc"], "o-",
