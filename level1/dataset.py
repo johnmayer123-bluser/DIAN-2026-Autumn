@@ -25,12 +25,6 @@ def get_dataloaders(batch_size=128,val_ratio=1/6,data_dir="data"):
     }
     return loaders
 
-#为了让训练流程清楚，我写了如下验证函数
-if __name__ == "__main__":
-    loaders = get_dataloaders()
-    for name, loader in loaders.items():
-        images, labels = next(iter(loader))
-        print(f"{name}: {len(loader.dataset)} 张, "
-              f"batch 形状: images {tuple(images.shape)}, labels {tuple(labels.shape)}")
+
 
 
