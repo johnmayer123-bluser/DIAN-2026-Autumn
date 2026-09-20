@@ -39,6 +39,14 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.Linear(4096, num_classes),       # 10 类 logits，不接 softmax
         )
+        self.apply(self._init_weights)          # Kaiming 初始化
+
+    def _init_weights(self, m):
+        if isinstance(m, (nn.Conv2d, nn.Linear)):
+            nn.init.kaiming_normal_(m.weight, mode="fan_out",
+                                    nonlinearity="relu")
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         return self.classifier(self.features(x))
