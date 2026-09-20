@@ -28,16 +28,15 @@ class AlexNet(nn.Module):
             nn.MaxPool2d(kernel_size=3, stride=2),
         )
         self.classifier = nn.Sequential(
-            # features 输出 (256,13,13)，压成 6×6 保持全连接尺寸不变
             nn.AdaptiveAvgPool2d((6, 6)),
-            nn.Flatten(),                       # (B, 256*6*6) = (B, 9216)
+            nn.Flatten(),        
             nn.Dropout(dropout),
             nn.Linear(256 * 6 * 6, 4096),
             nn.ReLU(inplace=True),
             nn.Dropout(dropout),
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
-            nn.Linear(4096, num_classes),       # 10 类 logits，不接 softmax
+            nn.Linear(4096, num_classes),      
         )
         self.apply(self._init_weights)          # Kaiming 初始化
 

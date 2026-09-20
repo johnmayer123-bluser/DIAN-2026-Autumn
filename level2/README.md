@@ -47,51 +47,23 @@ level2/
 └── README.md         # 本文档
 ```
 
-### 各文件职责
-
-| 文件             | 主要函数 / 类                                                                       | 职责说明                                                                                |
-| :--------------- | :---------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
-| `dataset.py`     | `build_transform()` `get_dataloaders()`                                             | 下载 Fashion-MNIST；`ToTensor` + `Normalize(0.2860, 0.3530)`；从训练集划出 1/6 作验证集 |
-| `model.py`       | `LeNet` `count_parameters()`                                                        | LeNet-5 结构（两层卷积 + 池化 + 三层全连接）；统计可学习参数量                          |
-| `train.py`       | `train_one_epoch()` `train()` `evaluate()` `plot_curves()`                          | 训练循环、验证评估、绘制并保存 Loss 曲线、保存权重与训练历史（`history.json`）          |
-| `evaluate.py`    | `evaluate_test()` `per_class_accuracy()`                                            | 加载 `run/best.pt`，测试集准确率验收（≥90%），并输出每类准确率定位模型弱点              |
-| `compare(AI).py` | `MLP`(内联) `train_model()` `collect_errors()` `plot_convergence()` `plot_errors()` | 复用同一份数据划分，分别训练 MLP 与 LeNet，输出四角度对比图表                           |
-
-### 数据流动
-
-```mermaid
-flowchart LR
-    A["Fashion-MNIST 图片<br/>28×28 灰度"] --> B["ToTensor + Normalize<br/>(B, 1, 28, 28)"]
-    B --> C["Conv1 1→6, 5×5, pad=2<br/>ReLU + MaxPool"]
-    C --> D["Conv2 6→16, 5×5<br/>ReLU + MaxPool<br/>(B, 16, 5, 5)"]
-    D --> E["Flatten 展平<br/>(B, 400)"]
-    E --> F["全连接 400→120→84→10<br/>logits"]
-    F --> G["CrossEntropyLoss<br/>计算损失"]
-    G --> H["loss.backward()<br/>反向传播求梯度"]
-    H --> I["Adam 更新参数"]
-    I -->|"下一个 batch"| B
-```
-
----
-
 ## 网络结构
 
-### LeNet（本 Level 的 CNN）
+### LeNet
 
-|  层   | 类型        |      输入       |      输出       | 激活函数 | 说明                                  |
-| :---: | :---------- | :-------------: | :-------------: | :------: | :------------------------------------ |
-|   0   | `Conv2d`    | (B, 1, 28, 28)  | (B, 6, 28, 28)  |   ReLU   | 6 个 5×5 卷积核，`padding=2` 保持尺寸 |
-|   1   | `MaxPool2d` | (B, 6, 28, 28)  | (B, 6, 14, 14)  |    —     | 2×2 下采样                            |
-|   2   | `Conv2d`    | (B, 6, 14, 14)  | (B, 16, 10, 10) |   ReLU   | 16 个 5×5 卷积核                      |
-|   3   | `MaxPool2d` | (B, 16, 10, 10) |  (B, 16, 5, 5)  |    —     | 2×2 下采样                            |
-|   4   | `Flatten`   |  (B, 16, 5, 5)  |    (B, 400)     |    —     | 展平为 16×5×5=400                     |
-|   5   | `Linear`    |       400       |       120       |   ReLU   | 全连接，后接 `Dropout(0.2)`           |
-|   6   | `Linear`    |       120       |       84        |   ReLU   | 全连接，后接 `Dropout(0.2)`           |
-|   7   | `Linear`    |       84        |       10        |    —     | 输出 10 类 logits（不接 softmax）     |
+|  层   | 类型        |      输入       |      输出       | 激活函数 |
+| :---: | :---------- | :-------------: | :-------------: | :------: |
+|   0   | `Conv2d`    | (B, 1, 28, 28)  | (B, 6, 28, 28)  |   ReLU   |
+|   1   | `MaxPool2d` | (B, 6, 28, 28)  | (B, 6, 14, 14)  |    —     |
+|   2   | `Conv2d`    | (B, 6, 14, 14)  | (B, 16, 10, 10) |   ReLU   |
+|   3   | `MaxPool2d` | (B, 16, 10, 10) |  (B, 16, 5, 5)  |    —     |
+|   4   | `Flatten`   |  (B, 16, 5, 5)  |    (B, 400)     |    —     |
+|   5   | `Linear`    |       400       |       120       |   ReLU   |
+|   6   | `Linear`    |       120       |       84        |   ReLU   |
+|   7   | `Linear`    |       84        |       10        |    —     |
 
 - **可学习参数量：61,706**
-- 在原始 LeNet-5 上的现代微调：`ReLU` 替代 Tanh、`MaxPool` 替代 AvgPool
-- 输出层不加激活函数：`CrossEntropyLoss` 内部自带 softmax，数值更稳定
+
 
 ### 对照实验中的 MLP
 
@@ -113,12 +85,10 @@ flowchart LR
 | `VAL_RATIO`     |        1/6        |
 | 设备            | RTX 5070（本机）  |
 
-> 对比实验中 MLP 与 CNN 使用**完全相同的**优化器、学习率、epochs、batch size，
-> 且共用同一次 `get_dataloaders()` 的数据划分，保证公平。
 
 ---
 
-## 实验结果
+## 实验结果（AI）
 
 ### CNN 训练曲线
 
@@ -169,11 +139,10 @@ T-shirt/top  87.3%    Trouser   97.6%    Pullover  85.6%    Dress   91.8%    Coa
 Sandal       98.4%    Shirt     69.8%    Sneaker   96.0%    Bag     98.0%    Ankle boot 96.7%
 ```
 
-- 鞋类（Sandal/Sneaker/Bag/Ankle boot）普遍 96%+，鞋形轮廓特征明显
-- `Shirt`（69.8%）最弱：与 T-shirt/top、Pullover、Coat 外形纹理高度相似，是 Fashion-MNIST 公认的难点
 
 
-## 🚀 快速开始
+
+##  快速开始
 
 ```bash
 # 1. 进入目录并激活环境（本机 5070，Python 3.11 + PyTorch 2.11 cu128）
@@ -194,4 +163,3 @@ python "compare(AI).py"
 
 ---
 
-*Author: johnmayer123-bluser · 2026 Dian 团队秋招*

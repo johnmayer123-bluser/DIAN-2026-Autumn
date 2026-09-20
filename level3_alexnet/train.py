@@ -15,7 +15,7 @@ from model import AlexNet, count_parameters
 # 超参数
 BATCH_SIZE = 128
 EPOCHS = 20
-LEARNING_RATE = 1e-4 #drop lr
+LEARNING_RATE = 0.01
 DROPOUT = 0.5
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 RUN_DIR = "run"
@@ -114,8 +114,7 @@ def main():
     print(f"AlexNet 可学习参数量: {count_parameters(model):,}")
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01,momentum=0.9, weight_decay=5e-4)
     _, best_val_acc = train(model, loaders, criterion, optimizer,
                             DEVICE, EPOCHS, RUN_DIR)
     print(f"训练完成! 最佳验证集准确率: {best_val_acc:.4f}")
