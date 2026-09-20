@@ -9,12 +9,12 @@ class AlexNet(nn.Module):
         self.features = nn.Sequential(
             nn.Conv2d(1, 64, kernel_size=(11, 11), padding=(2, 2), stride=(2, 2)),
             nn.ReLU(inplace=True),
-            nn.LocalResponseNorm(size=5, alpha=1e-4, beta=0.75, k=2),
+            #nn.LocalResponseNorm(size=5, alpha=1e-4, beta=0.75, k=2),
             nn.MaxPool2d(kernel_size=(3, 3), stride=(2, 2)),
 
             nn.Conv2d(64, 192, kernel_size=3, padding=2),
             nn.ReLU(inplace=True),
-            nn.LocalResponseNorm(size=5, alpha=1e-4, beta=0.75, k=2),
+            #nn.LocalResponseNorm(size=5, alpha=1e-4, beta=0.75, k=2),
             nn.MaxPool2d(kernel_size=3, stride=2),
 
             nn.Conv2d(192, 384, kernel_size=3, padding=1),
