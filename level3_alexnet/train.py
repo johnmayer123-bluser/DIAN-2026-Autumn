@@ -15,7 +15,7 @@ from model import AlexNet, count_parameters
 # 超参数
 BATCH_SIZE = 128
 EPOCHS = 20
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-4 #drop lr
 DROPOUT = 0.5
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 RUN_DIR = "run"
@@ -44,9 +44,9 @@ def plot_curves(history, save_path):
     axes[0].plot(epochs, history["train_loss"], "o-", label="train loss")
     axes[0].plot(epochs, history["val_loss"], "s-", label="val loss")
     axes[0].set_xlabel("epoch")
-    axes[0].set_ylabel("loss")
-    axes[0].set_title("Loss curve")
-    axes[0].legend()
+    axes[0].set_ylabel("loss") 
+    axes[0].set_title("Loss curve")  
+    axes[0].legend()       
     axes[0].grid(alpha=0.3)
 
     axes[1].plot(epochs, history["val_acc"], "o-", label="val accuracy")
@@ -71,6 +71,7 @@ def train_one_epoch(model, loader, criterion, optimizer, device):
         loss = criterion(outputs, labels)
         optimizer.zero_grad()
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0) #加入梯度裁剪防止爆炸 
         optimizer.step()
         running_loss += loss.item() * labels.size(0)
     return running_loss / len(loader.dataset)
